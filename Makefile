@@ -1,8 +1,8 @@
-CFLAGS += -fopenmp
+CFLAGS += -std=c99 -fopenmp -Ofast $(WARNINGS)
 LDFLAGS += -fopenmp
 
 .PHONY: default
-default: out.png
+default: out.png test
 
 .PHONY: test
 test: test.md5 out.pbm

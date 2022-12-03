@@ -120,7 +120,7 @@ main(int argc, char *argv[])
 	double ymin = -1.25;
 	double ymax = 1.25;
 
-	int height = 1080;
+	int height = 2160;
 	int width = height * (xmax - xmin) / (ymax - ymin) + 0.5;
 	assert(width == height);
 
@@ -129,7 +129,7 @@ main(int argc, char *argv[])
 		die("Failed to allocate %dx%d workspace", width, height);
 
 	if (argc == 1) {
-		render(&w, 100, xmin, xmax, ymin, ymax);
+		render(&w, 200, xmin, xmax, ymin, ymax);
 		output(&w);
 	}
 	else if (argc > 1 && argv[1][0] == 'z') {
