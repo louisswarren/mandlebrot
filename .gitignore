@@ -1,0 +1,6 @@
+mandlebrot
+test.md5
+
+*.o
+*.pbm
+*.png
