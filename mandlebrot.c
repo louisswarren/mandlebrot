@@ -30,8 +30,6 @@ render(
 	int height, int steps,
 	double xmin, double xmax, double ymin, double ymax
 ) {
-	long long int i, j;
-
 	int width = height * (xmax - xmin) / (ymax - ymin) + 0.5;
 
 	complex double (*zarr)[height] = calloc(width, sizeof(*zarr));
@@ -43,19 +41,19 @@ render(
 	printf("P2\n%d %d\n%d\n", width, height, steps);
 
 	for (int n = 0; n < steps; ++n) {
-		#pragma omp parallel for
-		for (j = 0; j < height; ++j) for (i = 0; i < width; ++i) {
-			double a, b;
-			double complex c;
-			a = xmin + (xmax - xmin) * i / width;
-			b = ymax - (ymax - ymin) * j / height;
-			zarr[i][j] = m(zarr[i][j], a + I * b);
-			inds[i][j] |= !inds[i][j] * escaped(zarr[i][j]) * n;
+		for (int j = 0; j < height; ++j) {
+			#pragma omp parallel for
+			for (int i = 0; i < width; ++i) {
+				double a = xmin + (xmax - xmin) * i / width;
+				double b = ymax - (ymax - ymin) * j / height;
+				zarr[i][j] = m(zarr[i][j], a + I * b);
+				inds[i][j] |= !inds[i][j] * escaped(zarr[i][j]) * n;
+			}
 		}
 	}
 
-	for (j = 0; j < height; ++j) {
-		for (i = 0; i < width; ++i) {
+	for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < width; ++i) {
 			printf("%d ", inds[i][j]);
 		}
 		putchar('\n');

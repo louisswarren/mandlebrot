@@ -1,7 +1,8 @@
+CFLAGS += -fopenmp
 LDFLAGS += -fopenmp
 
 .PHONY: default
-default: watch
+default: out.png
 
 .PHONY: test
 test: test.md5 out.pbm
@@ -19,7 +20,7 @@ out.png: out.pbm
 	convert $< $@
 
 out.pbm: mandlebrot
-	./$< > $@
+	time ./$< > $@
 
 mandlebrot: mandlebrot.o
 mandlebrot.o: mandlebrot.c
