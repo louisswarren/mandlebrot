@@ -45,7 +45,7 @@ render(
 	for (int n = 0; n < steps; ++n) {
 		for (j = 0; j < height; ++j) for (i = 0; i < width; ++i) {
 			a = xmin + (xmax - xmin) * i / width;
-			b = ymin + (ymax - ymin) * j / height;
+			b = ymax - (ymax - ymin) * j / height;
 			zarr[i][j] = m(zarr[i][j], a + I * b);
 			inds[i][j] |= !inds[i][j] * escaped(zarr[i][j]) * n;
 		}
