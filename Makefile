@@ -1,5 +1,7 @@
+LDFLAGS += -fopenmp
+
 .PHONY: default
-default: out.png
+default: watch
 
 .PHONY: test
 test: test.md5 out.pbm
@@ -8,6 +10,10 @@ test: test.md5 out.pbm
 .PHONY: test-save
 test-save: out.pbm
 	md5sum $^ > test.md5
+
+.PHONY: watch
+watch: mandlebrot
+	./$< z | mpv --scale=oversample -
 
 out.png: out.pbm
 	convert $< $@

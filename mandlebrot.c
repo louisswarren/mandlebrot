@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <complex.h>
 
+#include <omp.h>
+
 #define die(...) do { \
 		fprintf(stderr, __VA_ARGS__); \
 		fprintf(stderr, "\n"); \
@@ -29,10 +31,8 @@ render(
 	double xmin, double xmax, double ymin, double ymax
 ) {
 	long long int i, j;
-	double a, b;
-	double complex c;
 
-	int width = height * (xmax - xmin) / (ymax - ymin);
+	int width = height * (xmax - xmin) / (ymax - ymin) + 0.5;
 
 	complex double (*zarr)[height] = calloc(width, sizeof(*zarr));
 	int (*inds)[height] = calloc(width, sizeof(*inds));
@@ -43,7 +43,10 @@ render(
 	printf("P2\n%d %d\n%d\n", width, height, steps);
 
 	for (int n = 0; n < steps; ++n) {
+		#pragma omp parallel for
 		for (j = 0; j < height; ++j) for (i = 0; i < width; ++i) {
+			double a, b;
+			double complex c;
 			a = xmin + (xmax - xmin) * i / width;
 			b = ymax - (ymax - ymin) * j / height;
 			zarr[i][j] = m(zarr[i][j], a + I * b);
@@ -63,7 +66,26 @@ render(
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
-	render(1080, 100, -2.0, 0.5, -1.2, 1.2);
+	double xmin = -2.0;
+	double xmax = 0.5;
+	double ymin = -1.25;
+	double ymax = 1.25;
+
+	if (argc == 1) {
+		render(1080, 100, xmin, xmax, ymin, ymax);
+	}
+	else if (argc > 1 && argv[1][0] == 'z') {
+		// Zoom towards (-1.40065, 0)
+		double target = -1.40065;
+		while (1) {
+			double ratio = (target - xmin) / (xmax - xmin);
+			xmin += 0.01 * ratio;
+			xmax -= 0.01 * (1 - ratio);
+			ymin += 0.005;
+			ymax -= 0.005;
+			render(1080, 20, xmin, xmax, ymin, ymax);
+		}
+	}
 }
