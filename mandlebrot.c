@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <complex.h>
 
@@ -38,24 +39,36 @@ escaped(double complex z)
 	return a * a + b * b > 4;
 }
 
-struct workspace *
-workspace_create(int width, int height)
+size_t
+workspace_size(int width, int height)
 {
-	struct workspace *w = malloc(sizeof(*w) + sizeof(w->c[0]) * width * height);
-	if (w) {
-		w->width = width;
-		w->height = height;
-	}
-	return w;
+	size_t sz = sizeof(struct workcell);
+	if (SIZE_MAX / width < sz)
+		return 0;
+	sz *= width;
+	if (SIZE_MAX / height < sz)
+		return 0;
+	sz *= height;
+	if (SIZE_MAX - sizeof(struct workspace) < sz)
+		return 0;
+	sz += sizeof(struct workspace);
+	return sz;
 }
 
 void
 workspace_reset(struct workspace *w)
 {
 	w->n = 0;
-	memset(w->c, 0, w->width * sizeof(struct workcell (*)[w->height]));
+	memset(w->c, 0, sizeof(*w->c) * w->width * w->height);
 }
 
+void
+workspace_init(struct workspace *w, int width, int height)
+{
+	w->width = width;
+	w->height = height;
+	workspace_reset(w);
+}
 
 void
 output(const struct workspace *w)
@@ -114,9 +127,15 @@ main(int argc, char *argv[])
 	int width = height * (xmax - xmin) / (ymax - ymin) + 0.5;
 	assert(width == height);
 
-	struct workspace *w = workspace_create(width, height);
+	size_t w_sz = workspace_size(width, height);
+	struct workspace *w;
+
+	if (!w_sz)
+		die("Bad workspace size for %dx%d image", width, height);
+	w = malloc(w_sz);
 	if (!w)
-		die("Failed to allocate %dx%d workspace", width, height);
+		die("Failed to allocate %dx%d image workspace", width, height);
+	workspace_init(w, width, height);
 
 	if (argc == 1) {
 		render(w, 200, xmin, xmax, ymin, ymax);
