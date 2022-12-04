@@ -63,9 +63,11 @@ output(struct workspace *w)
 {
 	struct workcell (*c)[w->height] = (void *)w->c;
 
-	printf("P2\n%d %d\n%d\n", w->width, w->height, w->n);
+	printf("P3\n%d %d\n%d\n", w->width, w->height, w->n);
 	for (int j = 0; j < w->height; ++j) {
 		for (int i = 0; i < w->width; ++i) {
+			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
+			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
 			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
 		}
 		putchar('\n');

@@ -26,21 +26,21 @@ LDFLAGS += -lm -fopenmp
 default: out.png test
 
 .PHONY: test
-test: test.md5 out.pbm
+test: test.md5 out.ppm
 	md5sum -c $<
 
 .PHONY: test-save
-test-save: out.pbm
+test-save: out.ppm
 	md5sum $^ > test.md5
 
 .PHONY: watch
 watch: mandlebrot
 	./$< z | mpv --scale=oversample -
 
-out.png: out.pbm
+out.png: out.ppm
 	convert $< $@
 
-out.pbm: mandlebrot
+out.ppm: mandlebrot
 	time ./$< > $@
 
 mandlebrot: mandlebrot.o

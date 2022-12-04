@@ -2,5 +2,5 @@ mandlebrot
 test.md5
 
 *.o
-*.pbm
+*.ppm
 *.png
