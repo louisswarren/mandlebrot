@@ -7,6 +7,8 @@
 #include <omp.h>
 #include <assert.h>
 
+#define IL ((complex double) I)
+
 #define die(...) do { \
 		fprintf(stderr, __VA_ARGS__); \
 		fprintf(stderr, "\n"); \
@@ -15,7 +17,7 @@
 
 struct workcell {
 	complex double z;
-	unsigned int e;
+	int e;
 };
 
 struct workspace {
@@ -24,31 +26,17 @@ struct workspace {
 	struct workcell c[];
 };
 
-inline
-static
-double complex
-m(complex z, complex c)
-{
-	return z * z + c;
-}
-
-int
-escaped(double complex z)
-{
-	double a = creal(z), b = cimag(z);
-	return a * a + b * b > 4;
-}
 
 size_t
 workspace_size(int width, int height)
 {
 	size_t sz = sizeof(struct workcell);
-	if (SIZE_MAX / width < sz)
+	if (SIZE_MAX / (unsigned)width < sz)
 		return 0;
-	sz *= width;
-	if (SIZE_MAX / height < sz)
+	sz *= (unsigned)width;
+	if (SIZE_MAX / (unsigned)height < sz)
 		return 0;
-	sz *= height;
+	sz *= (unsigned)height;
 	if (SIZE_MAX - sizeof(struct workspace) < sz)
 		return 0;
 	sz += sizeof(struct workspace);
@@ -59,7 +47,7 @@ void
 workspace_reset(struct workspace *w)
 {
 	w->n = 0;
-	memset(w->c, 0, sizeof(*w->c) * w->width * w->height);
+	memset(w->c, 0, sizeof(*w->c) * (unsigned)w->width * (unsigned)w->height);
 }
 
 void
@@ -71,7 +59,7 @@ workspace_init(struct workspace *w, int width, int height)
 }
 
 void
-output(const struct workspace *w)
+output(struct workspace *w)
 {
 	struct workcell (*c)[w->height] = (void *)w->c;
 
@@ -85,6 +73,22 @@ output(const struct workspace *w)
 
 }
 
+inline
+double complex
+m(complex z, complex c)
+{
+	return z * z + c;
+}
+
+inline
+int
+escaped(double complex z)
+{
+	double a = creal(z), b = cimag(z);
+	return a * a + b * b > 4;
+}
+
+
 void
 render_once(
 	struct workspace *w,
@@ -97,7 +101,7 @@ render_once(
 		for (int i = 0; i < w->width; ++i) {
 			double a = xmin + (xmax - xmin) * i / w->width;
 			double b = ymax - (ymax - ymin) * j / w->height;
-			c[i][j].z = m(c[i][j].z, a + I * b);
+			c[i][j].z = m(c[i][j].z, a + IL * b);
 			c[i][j].e |= !c[i][j].e * escaped(c[i][j].z) * w->n;
 		}
 	}
@@ -124,7 +128,7 @@ main(int argc, char *argv[])
 	double ymax = 1.25;
 
 	int height = 2160;
-	int width = height * (xmax - xmin) / (ymax - ymin) + 0.5;
+	int width = (int)(height * (xmax - xmin) / (ymax - ymin) + 0.5);
 	assert(width == height);
 
 	size_t w_sz = workspace_size(width, height);
