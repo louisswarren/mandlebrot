@@ -121,10 +121,12 @@ render_once(
 	for (int j = 0; j < w->height; ++j) {
 		#pragma omp parallel for
 		for (int i = 0; i < w->width; ++i) {
-			double a = xmin + (xmax - xmin) * i / w->width;
-			double b = ymax - (ymax - ymin) * j / w->height;
-			c[i][j].z = m(c[i][j].z, a + IL * b);
-			c[i][j].e |= !c[i][j].e * escaped(c[i][j].z) * w->n;
+			if (!c[i][j].e) {
+				double a = xmin + (xmax - xmin) * i / w->width;
+				double b = ymax - (ymax - ymin) * j / w->height;
+				c[i][j].z = m(c[i][j].z, a + IL * b);
+				c[i][j].e = escaped(c[i][j].z) * w->n;
+			}
 		}
 	}
 	w->n++;
