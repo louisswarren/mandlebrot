@@ -10,8 +10,8 @@ WARNINGS  += -Wstringop-overflow=4 -Wstringop-truncation -Walloc-zero -Walloca
 WARNINGS  += -Warray-bounds=2 -Wattribute-alias=2 -Wlogical-op
 WARNINGS  += -Wduplicated-branches -Wduplicated-cond -Wtrampolines -Wfloat-equal
 WARNINGS  += -Wunsafe-loop-optimizations -Wshadow
-WARNINGS  += -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion
-WARNINGS  += -Wpacked -Wdangling-else -Wno-parentheses -Wsign-conversion
+WARNINGS  += -Wcast-qual -Wcast-align -Wwrite-strings #-Wconversion
+WARNINGS  += -Wpacked -Wdangling-else -Wno-parentheses #-Wsign-conversion
 WARNINGS  += -Wdate-time -Wjump-misses-init -Wreturn-local-addr -Wno-pointer-sign
 WARNINGS  += -Wstrict-prototypes
 WARNINGS  += -Wnormalized=nfkc -Wredundant-decls

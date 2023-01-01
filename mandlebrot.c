@@ -58,19 +58,39 @@ workspace_init(struct workspace *w, int width, int height)
 	workspace_reset(w);
 }
 
+long
+colour(unsigned int s)
+{
+	const long start_and_shift[][2] = {
+		{0xff0000,  0x000100},
+		{0xffff00, -0x010000},
+		{0x00ff00,  0x000001},
+		{0x00ffff, -0x000100},
+		{0x0000ff,  0x010000},
+		{0xff00ff, -0x000001}
+	};
+	int t = s % 1530;
+	int section = t / 255;
+	int mul = t % 255;
+	return start_and_shift[section][0] + mul * start_and_shift[section][1];
+}
+
 void
 output(struct workspace *w)
 {
 	struct workcell (*c)[w->height] = (void *)w->c;
 
-	printf("P3\n%d %d\n%d\n", w->width, w->height, w->n);
+	printf("P6\n%d %d 255\n", w->width, w->height);
 	for (int j = 0; j < w->height; ++j) {
 		for (int i = 0; i < w->width; ++i) {
-			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
-			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
-			printf("%d ", c[i][j].e ? w->n - c[i][j].e + 1 : 0);
+			long col = 0;
+			if (c[i][j].e > 0)
+				col = colour(1020 - (unsigned int)(c[i][j].e * 1020 / w->n));
+			unsigned char x;
+			x = (col >> 16) & 0xff; fwrite(&x, 1, 1, stdout);
+			x = (col >>  8) & 0xff; fwrite(&x, 1, 1, stdout);
+			x = (col >>  0) & 0xff; fwrite(&x, 1, 1, stdout);
 		}
-		putchar('\n');
 	}
 
 }
